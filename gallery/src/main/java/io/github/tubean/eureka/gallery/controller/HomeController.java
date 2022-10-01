@@ -1,29 +1,27 @@
 package io.github.tubean.eureka.gallery.controller;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+
+import io.github.tubean.eureka.gallery.GalleryService;
 import io.github.tubean.eureka.gallery.entity.Gallery;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
+
 
 @RestController
 @RequestMapping("/")
+@AllArgsConstructor
 public class HomeController {
-	@Autowired
-	private RestTemplate restTemplate;
 	
 	@Autowired
 	private Environment env;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HomeController.class);
-	
+	private final GalleryService galleryService;
+
 	@RequestMapping("/")
 	public String home() {
 		// This is useful for debugging
@@ -32,21 +30,9 @@ public class HomeController {
 		return "Hello from Gallery Service running at port: " + env.getProperty("local.server.port");
 	}
 
-	@HystrixCommand(fallbackMethod = "fallback")
 	@RequestMapping("/{id}")
 	public Gallery getGallery(@PathVariable final int id) {
-		LOGGER.info("Creating gallery object ... ");
-		// create gallery object
-		Gallery gallery = new Gallery();
-		gallery.setId(id);
-		
-		// get list of available images
-		@SuppressWarnings("unchecked")    // we'll throw an exception from image service to simulate a failure
-		List<Object> images = restTemplate.getForObject("http://image-service/images/", List.class);
-		gallery.setImages(images);
-
-		LOGGER.info("Returning images ... ");
-		return gallery;
+		return galleryService.getGallery(id);
 	}
 	
 	// -------- Admin Area --------
@@ -57,8 +43,5 @@ public class HomeController {
 		return "This is the admin area of Gallery service running at port: " + env.getProperty("local.server.port");
 	}
 
-	// a fallback method to be called if failure happened
-	public Gallery fallback(int galleryId, Throwable hystrixCommand) {
-		return new Gallery(galleryId);
-	}
+
 }

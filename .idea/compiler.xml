@@ -2,6 +2,7 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -10,11 +11,13 @@
         <module name="image" />
         <module name="server" />
         <module name="auth-service" />
+        <module name="clients" />
         <module name="gallery" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="auth-service" target="1.8" />
+      <module name="clients" target="1.8" />
       <module name="config" target="1.8" />
       <module name="gallery" target="1.8" />
       <module name="image" target="1.8" />
@@ -25,6 +28,7 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="auth-service" options="-parameters" />
+      <module name="clients" options="-parameters" />
       <module name="config" options="-parameters" />
       <module name="gallery" options="-parameters" />
       <module name="image" options="-parameters" />
