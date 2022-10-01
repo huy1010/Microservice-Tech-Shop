@@ -1,0 +1,16 @@
+server:
+  port: 8100
+
+spring:
+  application:
+    name: gallery-service
+  sleuth:
+    sampler:
+      percentage: 1.0
+  zipkin:
+    base-url: http://localhost:9411
+eureka:
+  client:
+    service-url:
+      default-zone: http://localhost:8761/eureka
+    register-with-eureka: true

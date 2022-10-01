@@ -10,7 +10,6 @@
         <module name="image" />
         <module name="server" />
         <module name="auth-service" />
-        <module name="config" />
         <module name="gallery" />
       </profile>
     </annotationProcessing>
