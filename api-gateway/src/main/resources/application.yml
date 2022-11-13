@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        # Server Route
+        - id: server
+          uri: http://localhost:8761
+          predicates:
+          - Path=/eureka/web
+          filters:
+            - SetPath=/
+
+        # Server Static Resources Route
+        - id: server-static
+          uri: http://localhost:8761
+          predicates:
+            - Path=/eureka/**
+
+        # Product Service Route
+        - id: product-service
+          uri: lb://product-service
+          predicates:
+          - Path=/api/product-service/**
+
+        # User Service Route
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/user-service/**
+
+  zipkin:
+    base-url: http://localhost:9411
+
+  sleuth:
+    sampler:
+      probability: 1.0
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+
+logging:
+  level:
+    root: INFO
+
