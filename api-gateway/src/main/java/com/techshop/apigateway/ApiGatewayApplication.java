@@ -20,17 +20,4 @@ public class ApiGatewayApplication {
         SpringApplication.run(ApiGatewayApplication.class, args);
     }
 
-    @Autowired
-    RouteDefinitionLocator locator;
-
-    @Bean
-    public List<GroupedOpenApi> apis() {
-        List<GroupedOpenApi> groups = new ArrayList<>();
-        List<RouteDefinition> definitions = locator.getRouteDefinitions().collectList().block();
-        definitions.stream().filter(routeDefinition -> routeDefinition.getId().matches(".*-service")).forEach(routeDefinition -> {
-            String name = routeDefinition.getId();
-            GroupedOpenApi.builder().pathsToMatch("/" + name + "/**").group(name).build();
-        });
-        return groups;
-    }
 }
