@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/user-service/users")
+@RequestMapping("/users")
 public class UserController {
 
     @GetMapping()
