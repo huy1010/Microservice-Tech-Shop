@@ -1,6 +1,6 @@
 package com.techshop.productservice.service;
 
-import com.techshop.productservice.dto.brand.BrandDto;
+import com.techshop.productservice.dto.BrandDto;
 import com.techshop.productservice.entity.Brand;
 import com.techshop.productservice.repository.BrandRepository;
 import org.springframework.beans.factory.annotation.Autowired;

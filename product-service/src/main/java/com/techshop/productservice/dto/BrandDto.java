@@ -1,4 +1,4 @@
-package com.techshop.productservice.dto.brand;
+package com.techshop.productservice.dto;
 
 import lombok.Getter;
 import lombok.Setter;

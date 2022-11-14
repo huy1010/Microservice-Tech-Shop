@@ -1,7 +1,7 @@
 package com.techshop.productservice.controller;
 
 import com.techshop.productservice.common.ResponseHandler;
-import com.techshop.productservice.dto.brand.BrandDto;
+import com.techshop.productservice.dto.BrandDto;
 import com.techshop.productservice.service.BrandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,7 +12,7 @@ import javax.validation.Valid;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/brands")
+@RequestMapping("/api/brands")
 public class BrandController {
     private final BrandService service;
 
@@ -20,11 +20,6 @@ public class BrandController {
     public BrandController(BrandService service) {
         this.service = service;
     }
-
-//    @GetMapping
-//    public Object getBrands(){
-//        return ResponseHandler.getResponse(service.getBrands(), HttpStatus.OK);
-//    }
 
     @GetMapping
     public Object getBrands(@RequestParam(value = "onlyActive") Boolean isActive){
