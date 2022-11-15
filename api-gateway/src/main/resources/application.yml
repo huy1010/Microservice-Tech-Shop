@@ -1,3 +1,4 @@
+
 spring:
   application:
     name: api-gateway
@@ -21,12 +22,16 @@ spring:
         # Product Service Route
         - id: product-service
           uri: lb://product-service
+          filters:
+            - MyFilterFactory
           predicates:
           - Path=/api/product-service/**
 
         # User Service Route
         - id: user-service
           uri: lb://user-service
+          filters:
+            - MyFilterFactory
           predicates:
             - Path=/api/user-service/**
 
