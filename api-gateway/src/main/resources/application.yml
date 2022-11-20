@@ -35,6 +35,11 @@ spring:
           predicates:
             - Path=/api/user-service/**
 
+        - id: import-service
+          uri: lb://import-service
+          predicates:
+            - Path=/api/import-service/**
+
         - id: openapi
           uri: http://localhost:8080
           predicates:
@@ -55,6 +60,8 @@ springdoc:
         url: /v3/api-docs/api/user-service
       - name: product-service
         url: /v3/api-docs/api/product-service
+      - name: import-service
+        url: /v3/api-docs/api/import-service
 
 eureka:
   client:

@@ -23,10 +23,15 @@ public class BrandController {
 
     @GetMapping
     public Object getBrands(@RequestParam(value = "onlyActive") Boolean isActive){
+        try{
         if(isActive)
             return ResponseHandler.getResponse(service.getBrandsActive(), HttpStatus.OK);
 
         return ResponseHandler.getResponse(service.getBrands(), HttpStatus.OK);
+
+        }catch(Exception e){
+            return ResponseHandler.getResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 
