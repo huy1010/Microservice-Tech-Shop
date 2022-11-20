@@ -1,5 +1,12 @@
 package com.techshop.userservice.controller;
 
+import com.techshop.userservice.common.ResponseHandler;
+import com.techshop.userservice.dto.LoginDto;
+import com.techshop.userservice.dto.RegisterDto;
+import com.techshop.userservice.entity.User;
+import com.techshop.userservice.services.UserServices;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -8,7 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import com.techshop.userservice.util.JwtUtil;
+import com.techshop.userservice.common.util.JwtUtil;
+
+import javax.validation.Valid;
 
 @CrossOrigin
 @RestController
@@ -17,18 +26,45 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody String userName) {
-        String token = jwtUtil.generateToken(userName);
+    private final UserServices userServices;
 
-        return new ResponseEntity<String>(token, HttpStatus.OK);
+
+    public AuthController(UserServices userService) {
+        this.userServices = userService;
+    }
+
+    @PostMapping("/login")
+    public Object login(@RequestBody LoginDto dto, BindingResult errors) {
+        try {
+            if (errors.hasErrors())
+                return ResponseHandler.getResponse(errors, HttpStatus.BAD_REQUEST);
+            if (userServices.login(dto)) {
+                String token = jwtUtil.generateToken(dto.getUsername());
+                return ResponseHandler.getResponse(token, HttpStatus.OK);
+            } else {
+                return ResponseHandler.getResponse(errors, HttpStatus.UNAUTHORIZED);
+            }
+        } catch (Exception e){
+            return ResponseHandler.getResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody String userName) {
-        // Persist user to some persistent storage
-        System.out.println("Info saved...");
+    public Object  register(@Valid @RequestBody RegisterDto dto, BindingResult errors) {
+        try{
+            if(errors.hasErrors())
+                return ResponseHandler.getResponse(errors, HttpStatus.BAD_REQUEST);
 
-        return new ResponseEntity<String>("Registered", HttpStatus.OK);
+            dto.setRoleId(null);
+            dto.setFlag("N");
+            User addedUser = userServices.register(dto);
+           // VerificationToken token =securityUserService.createVerificationToken(addedUser);
+           // mailService.sendVerifyMail(token.getUser().getEmail(), token.getToken());
+
+            return ResponseHandler.getResponse(HttpStatus.CREATED);
+        } catch (Exception e){
+            return ResponseHandler.getResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
