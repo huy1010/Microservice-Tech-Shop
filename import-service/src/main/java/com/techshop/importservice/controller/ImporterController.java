@@ -37,19 +37,18 @@ public class ImporterController {
         }
     }
 
-//    @GetMapping(path = "/{import-id}")
-//    public Object getImportById(@PathVariable("import-id") Long importId) {
-//        try {
-//            if (importId == null)
-//                throw new IllegalStateException("Import id must not be null");
+    @GetMapping(path = "/{import-id}")
+    public Object getImportById(@PathVariable("import-id") Long importId) {
+        try {
+            if (importId == null)
+                throw new IllegalStateException("Import id must not be null");
 
-//            GetImporterDto importer = service.getImport(importId);
-//            return ResponseHandler.getResponse(importer, HttpStatus.OK);
-//            return "OK";
-//        } catch (Exception e) {
-//            return ResponseHandler.getResponse(e, HttpStatus.BAD_REQUEST);
-//        }
-//    }
+            GetImporterDto importer = service.getImport(importId);
+            return ResponseHandler.getResponse(importer, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseHandler.getResponse(e, HttpStatus.BAD_REQUEST);
+        }
+    }
 
 
 

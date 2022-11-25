@@ -50,12 +50,12 @@ public class ImporterServiceImpl implements ImporterService {
         return result;
     }
 //
-//    @Override
-//    public GetImporterDto getImport(Long importId) {
-//        Importer result = repository.findById(importId).orElse(null);
-//
-//        return importConverter.toGetImportDto(result);
-//    }
+    @Override
+    public GetImporterDto getImport(Long importId) {
+        Importer result = repository.findById(importId).orElse(null);
+
+        return importConverter.toGetImportDto(result);
+    }
 //
     @Transactional
     @Override

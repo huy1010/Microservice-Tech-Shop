@@ -13,7 +13,7 @@ import java.util.Set;
 
 public interface ImporterService {
     List<GetImporterDto> getImports();
-//    GetImporterDto getImport(Long importId);
+    GetImporterDto getImport(Long importId);
     void  createImport(CreateImporterDto dto);
 //    Map<LocalDate, List<Importer>> getImportReport(LocalDate start, LocalDate end, String compression);
 //
