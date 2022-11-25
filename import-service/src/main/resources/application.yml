@@ -1,21 +1,18 @@
 server:
-  port: 8082
+  port: 8084
   servlet:
-    context-path: /api/product-service
+    context-path: /api/import-service
 
 eureka:
   client:
     service-url:
       default-zone: http://localhost:8761/eureka
-    fetch-registry: true
-    register-with-eureka: true
-    enabled: true
 
 spring:
   application:
-    name: product-service
+    name: import-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/techshop_product_service
+    url: jdbc:postgresql://localhost:5432/techshop_import_service
     username: postgres
     password: 1111
   mvc:
