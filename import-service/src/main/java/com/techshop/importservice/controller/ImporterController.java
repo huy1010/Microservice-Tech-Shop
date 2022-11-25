@@ -12,10 +12,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/imports")
+@RequestMapping("/imports")
 public class ImporterController {
     private final ImporterService service;
     private final ProductServiceClient _productServiceClient;
@@ -29,10 +30,8 @@ public class ImporterController {
     @GetMapping
     public Object getImports() {
         try {
-           Object products = _productServiceClient.getBrands(true);
-//            List<GetImporterDto> importers = service.getImports();
-//            return ResponseHandler.getResponse(importers, HttpStatus.OK);
-            return ResponseHandler.getResponse(products, HttpStatus.OK);
+            List<GetImporterDto> importers = service.getImports();
+            return ResponseHandler.getResponse(importers, HttpStatus.OK);
         } catch (Exception e) {
             return ResponseHandler.getResponse(e, HttpStatus.BAD_REQUEST);
         }

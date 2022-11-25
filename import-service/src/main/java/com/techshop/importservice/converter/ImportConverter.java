@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class ImportConverter {
@@ -20,14 +21,14 @@ public class ImportConverter {
     public GetImporterDto toGetImportDto (Importer importer){
             GetImporterDto result = new GetImporterDto();
 
-//        result.setImportId(importer.getImportId());
-//        result.setImportDesc(importer.getImportDesc());
-//        result.setTotalPrice(importer.getTotalPrice());
+        result.setImportId(importer.getImportId());
+        result.setImportDesc(importer.getImportDesc());
+        result.setTotalPrice(importer.getTotalPrice());
 //        result.setEmailImporter(importer.getUser().getEmail());
-//        result.setCreatedAt(importer.getCreatedAt().toLocalDate());
-//
-//        List<GetImporterDetailDto> importerDetailDtos = importerService.getImportDetail(importer.getImportDetails());
-//        result.setImportDetails(importerDetailDtos);
+        result.setCreatedAt(importer.getCreatedAt().toLocalDate());
+
+        List<GetImporterDetailDto> importerDetailDtos = importer.getImportDetails().stream().map(detail -> new GetImporterDetailDto(detail)).collect(Collectors.toList());
+        result.setImportDetails(importerDetailDtos);
 
         return result;
     }

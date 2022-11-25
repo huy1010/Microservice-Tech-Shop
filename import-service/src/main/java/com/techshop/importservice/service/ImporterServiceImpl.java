@@ -13,6 +13,7 @@ import com.techshop.importservice.entity.ImporterDetailPK;
 import com.techshop.importservice.repository.ImporterRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 
@@ -29,9 +30,10 @@ public class ImporterServiceImpl implements ImporterService {
     private ImportConverter importConverter;
 //
     @Autowired
-    public ImporterServiceImpl(ImporterRepository repository,
-//            , @Lazy VariantService variantService, UserService userService, @Lazy ImportConverter importConverter
-                               ProductServiceClient productServiceClient) {
+    public ImporterServiceImpl(
+            ImporterRepository repository,
+            @Lazy ImportConverter importConverter,
+            ProductServiceClient productServiceClient) {
         this.repository = repository;
         _productServiceClient = productServiceClient;
 //        this.variantService = variantService;
@@ -39,14 +41,14 @@ public class ImporterServiceImpl implements ImporterService {
         this.importConverter = importConverter;
     }
 //
-//    @Override
-//    public List<GetImporterDto> getImports() {
-//        List<Importer> importers = repository.findAll();
-//        List<GetImporterDto> result = new ArrayList<>();
-//        importers.forEach(item -> result.add(importConverter.toGetImportDto(item)));
-//
-//        return result;
-//    }
+//    @OverrideF
+    public List<GetImporterDto> getImports() {
+        List<Importer> importers = repository.findAll();
+        List<GetImporterDto> result = new ArrayList<>();
+        importers.forEach(item -> result.add(importConverter.toGetImportDto(item)));
+
+        return result;
+    }
 //
 //    @Override
 //    public GetImporterDto getImport(Long importId) {
