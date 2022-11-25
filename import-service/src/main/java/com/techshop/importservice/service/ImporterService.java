@@ -14,7 +14,7 @@ import java.util.Set;
 public interface ImporterService {
 //    List<GetImporterDto> getImports();
 //    GetImporterDto getImport(Long importId);
-//    GetImporterDto createImport(CreateImporterDto dto);
+    void  createImport(CreateImporterDto dto);
 //    Map<LocalDate, List<Importer>> getImportReport(LocalDate start, LocalDate end, String compression);
 //
 //    List<GetImporterDetailDto> getImportDetail(Set<ImporterDetail> importDetails);

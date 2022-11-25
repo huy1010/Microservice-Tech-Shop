@@ -1,10 +1,8 @@
 package com.techshop.clients.productservice;
 
+import feign.Body;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -13,4 +11,10 @@ public interface ProductServiceClient {
 
     @GetMapping("api/brands")
     Object getBrands(@RequestParam("onlyActive") Boolean isActive );
+
+    @GetMapping("variants/{variant-id}/exists")
+    Boolean existsVariant(@PathVariable("variant-id") Long variantId);
+
+    @PutMapping("variants/inventories")
+    void updateVariantInventory(@RequestBody List<UpdateVariantRequest> requests);
 }
