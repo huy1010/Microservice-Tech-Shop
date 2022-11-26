@@ -1,5 +1,7 @@
 package com.techshop.userservice.services;
 
+import com.techshop.userservice.dto.ChangePasswordDto;
+import com.techshop.userservice.dto.UpdateUserDto;
 import com.techshop.userservice.repository.UserRepository;
 import com.techshop.userservice.dto.LoginDto;
 import com.techshop.userservice.dto.RegisterDto;
@@ -7,6 +9,8 @@ import com.techshop.userservice.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class UserServicesImp implements UserServices {
@@ -43,6 +47,66 @@ public class UserServicesImp implements UserServices {
             newUser.setActiveFlag("N");
 
         return repository.save(newUser);
+    }
+
+    @Override
+    public User getProfile(String username) {
+        User user = repository.getByUsername(username);
+        return user;
+    }
+    public User getUserByUsername(String username) {
+        Optional<User> user = repository.findByUsername(username);
+        if(!user.isPresent())
+            throw new IllegalArgumentException("Username does not exist");
+
+        return user.get();
+    }
+    @Override
+    public User updateUser(UpdateUserDto dto) {
+        User user = getUserByUsername(dto.getUsername());
+
+        if(dto.getFirstName() != null)
+            user.setFirstName(dto.getFirstName());
+
+        if(dto.getLastName() != null)
+            user.setLastName(dto.getLastName());
+
+        if(dto.getPhoneNo() != null)
+            user.setPhoneNo(dto.getPhoneNo());
+
+        if(dto.getAddress() != null)
+            user.setAddress(dto.getAddress() );
+
+        if(dto.getImgUrl() != null)
+            user.setImgUrl(dto.getImgUrl());
+
+        if(dto.getEmail() != null)
+            user.setEmail(dto.getEmail());
+
+        if(dto.getDateOfBirth() != null)
+            user.setDateOfBirth(dto.getDateOfBirth());
+
+        return repository.save(user);
+    }
+
+    @Override
+    public void changePassword(String username, ChangePasswordDto dto) {
+        LoginDto userLogin = new LoginDto();
+        userLogin.setPassword(dto.getOldPassword());
+        userLogin.setUsername(username);
+        try {
+          if(login(userLogin)) {
+              User user = getUserByUsername(username);
+              user.setPassword(encoder.encode((dto.getNewPassword())));
+              repository.save(user);
+              return;
+          } else {
+              throw new IllegalArgumentException("Old password does not match");
+          }
+        } catch (Exception e) {
+            System.out.println(e);
+            throw new IllegalArgumentException("Old password does not match");
+        }
     }
 
     @Override

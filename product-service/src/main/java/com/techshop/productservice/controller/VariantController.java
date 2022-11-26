@@ -12,7 +12,7 @@ import javax.validation.Valid;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/variants")
+@RequestMapping("/variants")
 public class VariantController {
     private VariantService service;
 
