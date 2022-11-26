@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/attributes")
+@RequestMapping("/attributes")
 public class AttributeController {
     private AttributeService service;
 
