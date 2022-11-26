@@ -1,5 +1,6 @@
 package com.techshop.productservice.service;
 
+import com.techshop.clients.productservice.UpdateVariantRequest;
 import com.techshop.productservice.converter.VariantConverter;
 import com.techshop.productservice.dto.attribute.UpdateVariantAttributeDto;
 import com.techshop.productservice.dto.variant.CreateVariantDto;
@@ -156,5 +157,23 @@ public class VariantServiceImpl  implements VariantService{
         repository.save(variant);
     }
 
+    public Boolean existsVariant(Long variantId){
+       return repository.existsById(variantId);
+    }
+    @Transactional
+    @Override
+    public void updateInventory(List<UpdateVariantRequest> inventories) {
+        List<Variant> variants = new ArrayList<>();
+        for (UpdateVariantRequest inventory : inventories){
+            Variant variant = getById(inventory.getVariantId());
+            variant.setImportPrice(inventory.getImportPrice());
+
+            Integer oldQuantity = variant.getQuantity();
+            variant.setQuantity(oldQuantity + inventory.getQuantity());
+            variants.add(variant);
+        }
+
+        repository.saveAll(variants);
+    }
 
 }
