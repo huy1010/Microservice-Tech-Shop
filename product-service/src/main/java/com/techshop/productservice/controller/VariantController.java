@@ -1,18 +1,21 @@
 package com.techshop.productservice.controller;
 
+import com.techshop.clients.productservice.UpdateVariantRequest;
 import com.techshop.productservice.common.ResponseHandler;
 import com.techshop.productservice.dto.variant.CreateVariantDto;
 import com.techshop.productservice.dto.variant.UpdateVariantDto;
+import com.techshop.productservice.entity.Variant;
 import com.techshop.productservice.service.VariantService;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/variants")
+@RequestMapping("variants")
 public class VariantController {
     private VariantService service;
 
@@ -65,5 +68,18 @@ public class VariantController {
         }catch (Exception e){
             return ResponseHandler.getResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/{variant-id}/exists")
+    public Boolean existsVariant(@PathVariable("variant-id") Long variantId){
+        try{
+            return service.existsVariant(variantId);
+        }catch (Exception e){
+           return false;
+        }
+    }
+    @PutMapping("inventories")
+    void updateVariantInventory(@RequestBody List<UpdateVariantRequest> requests){
+       service.updateInventory(requests);
     }
 }
