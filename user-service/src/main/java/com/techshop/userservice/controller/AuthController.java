@@ -38,9 +38,9 @@ public class AuthController {
         try {
             if (errors.hasErrors())
                 return ResponseHandler.getResponse(errors, HttpStatus.BAD_REQUEST);
-            if (userServices.login(dto)) {
-                String token = jwtUtil.generateToken(dto.getUsername());
-                return ResponseHandler.getResponse(token, HttpStatus.OK);
+            String result = userServices.login(dto);
+            if (result != "") {
+                return ResponseHandler.getResponse(result, HttpStatus.OK);
             } else {
                 return ResponseHandler.getResponse(errors, HttpStatus.UNAUTHORIZED);
             }

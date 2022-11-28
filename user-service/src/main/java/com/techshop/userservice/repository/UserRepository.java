@@ -20,7 +20,7 @@ public interface UserRepository  extends JpaRepository<User, Long> {
     int countByUsernameAndPassword(String username, String password);
 
     User getByUsername(String username);
-
+    User getByUserId(Long userId);
     int countByUsername(String username);
 
     int countByEmail(String email);

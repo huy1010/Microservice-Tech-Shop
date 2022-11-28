@@ -1,5 +1,6 @@
 package com.techshop.userservice.services;
 
+import com.techshop.userservice.common.util.JwtUtil;
 import com.techshop.userservice.dto.ChangePasswordDto;
 import com.techshop.userservice.dto.UpdateUserDto;
 import com.techshop.userservice.repository.UserRepository;
@@ -17,6 +18,8 @@ public class UserServicesImp implements UserServices {
 
     private UserRepository repository;
     private PasswordEncoder encoder;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Autowired
     public UserServicesImp(UserRepository userRepository, PasswordEncoder passwordEncoder) {
@@ -24,15 +27,15 @@ public class UserServicesImp implements UserServices {
         this.encoder = passwordEncoder;
     }
     @Override
-    public boolean login(LoginDto user) {
+    public String login(LoginDto user) {
       //  String passEncode = encoder.encode(user.getPassword());
         System.out.println(user.getUsername());
         User dbUser =  repository.getByUsername(user.getUsername());
         if(dbUser != null) {
             if(encoder.matches(user.getPassword(), dbUser.getPassword()))
-            return true;
+            return jwtUtil.generateToken(dbUser.getUserId().toString());
         }
-     return false;
+     return "";
     }
 
     @Override
@@ -50,8 +53,8 @@ public class UserServicesImp implements UserServices {
     }
 
     @Override
-    public User getProfile(String username) {
-        User user = repository.getByUsername(username);
+    public User getProfile(String userId) {
+        User user = repository.getByUserId(Long.parseLong(userId));
         return user;
     }
     public User getUserByUsername(String username) {
@@ -95,7 +98,7 @@ public class UserServicesImp implements UserServices {
         userLogin.setPassword(dto.getOldPassword());
         userLogin.setUsername(username);
         try {
-          if(login(userLogin)) {
+          if(login(userLogin) != "") {
               User user = getUserByUsername(username);
               user.setPassword(encoder.encode((dto.getNewPassword())));
               repository.save(user);

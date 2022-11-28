@@ -20,7 +20,11 @@ public interface VariantService {
 
     void handleQuantity(Long variantId, Integer quantity, String method);
 
+    String enoughQuantity(List<UpdateVariantRequest> requests);
+
     Boolean existsVariant(Long variantId);
 
     void updateInventory(List<UpdateVariantRequest> inventories);
+
+    void updateForOrder(List<UpdateVariantRequest> variants);
 }

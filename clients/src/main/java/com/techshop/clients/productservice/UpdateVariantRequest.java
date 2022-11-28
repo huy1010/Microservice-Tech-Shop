@@ -9,4 +9,5 @@ public class UpdateVariantRequest {
     private Long variantId;
     private Integer quantity;
     private Long importPrice;
+    private String method;
 }
