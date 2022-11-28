@@ -7,7 +7,7 @@ import com.techshop.userservice.dto.UpdateUserDto;
 import com.techshop.userservice.entity.User;
 
 public interface UserServices {
-    boolean login(LoginDto user);
+    String login(LoginDto user);
     User register(RegisterDto user);
     User getProfile(String username);
     User updateUser(UpdateUserDto dto);

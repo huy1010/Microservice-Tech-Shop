@@ -142,20 +142,7 @@ public class VariantServiceImpl  implements VariantService{
         repository.save(variant);
     }
 
-    @Override
-    public void handleQuantity(Long variantId, Integer quantity, String method) {
-        Variant variant = getById(variantId);
-        if(method.equals("sub")){
-            if(variant.getQuantity() < quantity)
-                throw new IllegalStateException("Số lượng trong kho không đủ");
-            else
-                variant.setQuantity(variant.getQuantity() - quantity);
-        } else {
-            variant.setQuantity(variant.getQuantity() + quantity);
-        }
 
-        repository.save(variant);
-    }
 
     public Boolean existsVariant(Long variantId){
        return repository.existsById(variantId);
@@ -175,5 +162,41 @@ public class VariantServiceImpl  implements VariantService{
 
         repository.saveAll(variants);
     }
+    @Transactional
+    @Override
+    public void updateForOrder(List<UpdateVariantRequest> variantsRequest) {
+        List<Variant> variants = new ArrayList<>();
+        for (UpdateVariantRequest variantRequest : variantsRequest){
+            Variant variant = getById(variantRequest.getVariantId());
 
+            Integer oldQuantity = variant.getQuantity();
+            variant.setQuantity(oldQuantity - variantRequest.getQuantity());
+            variants.add(variant);
+        }
+
+        repository.saveAll(variants);
+    }
+    @Override
+    public void handleQuantity(Long variantId, Integer quantity, String method) {
+        Variant variant = getById(variantId);
+        if(method.equals("sub")){
+            if(variant.getQuantity() < quantity)
+                throw new IllegalStateException("Số lượng " + variant.getVariantName() +" trong kho không đủ");
+            else
+                variant.setQuantity(variant.getQuantity() - quantity);
+        } else {
+            variant.setQuantity(variant.getQuantity() + quantity);
+        }
+
+        repository.save(variant);
+    }
+    @Override
+    public String enoughQuantity(List<UpdateVariantRequest> variants) {
+
+        for(UpdateVariantRequest variant: variants) {
+            Variant dbVariant = getById(variant.getVariantId());
+            if(dbVariant.getQuantity() < variant.getQuantity()) return "Số lượng " + dbVariant.getVariantName() + " trong kho không đủ";
+        }
+        return "";
+    }
 }

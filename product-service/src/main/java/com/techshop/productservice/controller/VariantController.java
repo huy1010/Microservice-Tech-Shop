@@ -82,4 +82,23 @@ public class VariantController {
     void updateVariantInventory(@RequestBody List<UpdateVariantRequest> requests){
        service.updateInventory(requests);
     }
+    @PutMapping("update-variant-for-sell")
+    public Object updateVariantForSell(@RequestBody UpdateVariantRequest requests){
+        try{
+            service.handleQuantity(requests.getVariantId(), requests.getQuantity(), requests.getMethod());
+            return ResponseHandler.getResponse(HttpStatus.OK);
+        }catch (Exception e){
+            return ResponseHandler.getResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+    @PutMapping("check-enough-variant-quantity")
+    public Object checkEnoughVariantQuantity(@RequestBody List<UpdateVariantRequest> requests)    {
+        try{
+           String result =  service.enoughQuantity(requests);
+            return ResponseHandler.getResponse(result, HttpStatus.OK);
+        }catch (Exception e){
+            return ResponseHandler.getResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
