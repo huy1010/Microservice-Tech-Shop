@@ -68,4 +68,9 @@ public class MailServiceImpl implements MailService {
             return "Error while sending mail!!!";
         }
     }
+
+    @Override
+    public String sendHtmlMail(EmailDetails details) {
+        return null;
+    }
 }
