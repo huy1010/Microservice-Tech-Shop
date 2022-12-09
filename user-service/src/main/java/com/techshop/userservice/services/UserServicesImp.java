@@ -43,7 +43,7 @@ public class UserServicesImp implements UserServices {
         System.out.println(user.getUsername());
         User dbUser =  repository.getByUsername(user.getUsername());
         if(dbUser == null)
-            return false;
+            return "";
 
         if(dbUser.getActiveFlag().equals("N"))
             throw new IllegalStateException("Your account is not active");
@@ -56,7 +56,9 @@ public class UserServicesImp implements UserServices {
 
 
         if(encoder.matches(user.getPassword(), dbUser.getPassword()))
-            return true;
+            return jwtUtil.generateToken(dbUser.getUserId().toString());
+
+        return "";
 
      return false;
     }
