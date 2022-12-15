@@ -11,10 +11,10 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository  extends JpaRepository<User, Long> {
-    @Query("SELECT u FROM User u WHERE u.activeFlag <> 'D'")
+    @Query("SELECT u FROM User u WHERE u.activeFlag <> 'D' AND u.role = 'MANAGER'")
     List<User> findUsers();
 
-    @Query("SELECT u FROM User u WHERE u.activeFlag <> 'D'")
+    @Query("SELECT u FROM User u WHERE u.activeFlag <> 'D' AND u.role = 'USER'")
     List<User> findCustomers();
 
     int countByUsernameAndPassword(String username, String password);

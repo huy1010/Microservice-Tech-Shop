@@ -28,8 +28,6 @@ public class RegisterDto {
     @Email(message = "{user.email.valid}")
     @UniqueEmail
     private String email;
-
-    private Long roleId;
     private String dateOfBirth;
     private String flag;
 }

@@ -15,5 +15,5 @@ public class GetImporterDto {
     private  String emailImporter;
     private  LocalDate createdAt;
     private List<GetImporterDetailDto> importDetails;
-
+    private Object user;
 }

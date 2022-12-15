@@ -22,11 +22,6 @@ public class ImporterDetail {
     @JoinColumn(name = "import_id")
     private Importer importer;
 
-//    @ManyToOne(cascade = CascadeType.ALL)
-
-//    @Column(name = "variant_id")
-//    private Long variantId;
-
     @Column(name = "quantity")
     private Integer quantity;
 

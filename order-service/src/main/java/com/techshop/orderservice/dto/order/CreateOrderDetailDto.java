@@ -9,7 +9,8 @@ import javax.validation.constraints.Positive;
 public class CreateOrderDetailDto {
     @NotNull(message = "{variant.not-null}")
     private Long variantId;
-
+    @NotNull(message = "{product.not-null}")
+    private Long productId;
     @NotNull(message = "{quantity.not-null}")
     @Positive(message = "{quantity.positive}")
     private Integer quantity;

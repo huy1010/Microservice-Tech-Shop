@@ -37,8 +37,7 @@ public class Importer extends BaseEntity {
 
     @OneToMany(mappedBy = "importer", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
     private Set<ImporterDetail> importDetails = new HashSet<>();
-//
-//    @ManyToOne
-//    @JoinColumn(name = "user_id")
-//    private User user;
+
+    @Column(name = "user_id")
+    private Long userId;
 }

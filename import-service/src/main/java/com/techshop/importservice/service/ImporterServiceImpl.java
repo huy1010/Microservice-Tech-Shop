@@ -3,13 +3,14 @@ package com.techshop.importservice.service;
 
 import com.techshop.clients.productservice.ProductServiceClient;
 import com.techshop.clients.productservice.UpdateVariantRequest;
+import com.techshop.importservice.common.util.AdjusterUtils;
+import com.techshop.importservice.config.FeignClientInterceptor;
 import com.techshop.importservice.converter.ImportConverter;
 import com.techshop.importservice.dto.CreateImporterDetailDto;
 import com.techshop.importservice.dto.CreateImporterDto;
 import com.techshop.importservice.dto.GetImporterDto;
 import com.techshop.importservice.entity.Importer;
 import com.techshop.importservice.entity.ImporterDetail;
-import com.techshop.importservice.entity.ImporterDetailPK;
 import com.techshop.importservice.repository.ImporterRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,15 +19,18 @@ import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ImporterServiceImpl implements ImporterService {
     private  ImporterRepository repository;
     private final ProductServiceClient _productServiceClient;
-//    private  VariantService variantService;
-//    private  UserService userService;
     private ImportConverter importConverter;
 //
     @Autowired
@@ -36,8 +40,6 @@ public class ImporterServiceImpl implements ImporterService {
             ProductServiceClient productServiceClient) {
         this.repository = repository;
         _productServiceClient = productServiceClient;
-//        this.variantService = variantService;
-//        this.userService = userService;
         this.importConverter = importConverter;
     }
 //
@@ -49,19 +51,20 @@ public class ImporterServiceImpl implements ImporterService {
 
         return result;
     }
-//
+
     @Override
     public GetImporterDto getImport(Long importId) {
         Importer result = repository.findById(importId).orElse(null);
 
         return importConverter.toGetImportDto(result);
     }
-//
+
     @Transactional
     @Override
     public void createImport(CreateImporterDto dto) {
         Importer importer = new Importer();
-
+        Long userId = Long.parseLong(FeignClientInterceptor.getClaims().get("jti").toString());
+        importer.setUserId(userId);
         if (dto.getImportDesc() != null) {
             importer.setImportDesc(dto.getImportDesc());
         }
@@ -77,18 +80,12 @@ public class ImporterServiceImpl implements ImporterService {
             ImporterDetail importerDetail = new ImporterDetail();
             importerDetail.getId().setVariantId(variantId);
 
-
-
-//            Integer oldQuantity = variant.getQuantity();
-
             importerDetail.setQuantity(createImporterDetail.getQuantity());
             importerDetail.setPrice(createImporterDetail.getPrice());
             importerDetail.setImporter(importer);
-//            importerDetail.setVariantId(createImporterDetail.getVariantId());
+
 
             //UPDATE PRICE / QUANTITY
-//            importerDetail.getVariant().setQuantity(oldQuantity + importerDetail.getQuantity());
-//            importerDetail.getVariant().setImportPrice(importerDetail.getPrice());
             UpdateVariantRequest inventory = new UpdateVariantRequest();
             inventory.setImportPrice(createImporterDetail.getPrice());
             inventory.setVariantId(variantId);
@@ -105,13 +102,13 @@ public class ImporterServiceImpl implements ImporterService {
 //        return importConverter.toGetImportDto(result);
     }
 
-//    @Override
-//    public Map<LocalDate, List<Importer>> getImportReport(LocalDate start, LocalDate end, String compression) {
-//
-//        return repository.findByCreatedAtBetweenOrderByCreatedAt(start.atStartOfDay(), end.atTime(LocalTime.MAX))
-//                .stream().collect(Collectors.groupingBy(item ->
-//                        item.getCreatedAt().toLocalDate().with(AdjusterUtils.getAdjuster().get(compression))));
-//    }
+    @Override
+    public Map<LocalDate, List<Importer>> getImportReport(LocalDate start, LocalDate end, String compression) {
+
+        return repository.findByCreatedAtBetweenOrderByCreatedAt(start.atStartOfDay(), end.atTime(LocalTime.MAX))
+                .stream().collect(Collectors.groupingBy(item ->
+                        item.getCreatedAt().toLocalDate().with(AdjusterUtils.getAdjuster().get(compression))));
+    }
 //
 //    @Override
 //    public List<GetImporterDetailDto> getImportDetail(Set<ImporterDetail> importDetails) {
@@ -130,12 +127,12 @@ public class ImporterServiceImpl implements ImporterService {
 //        return result;
 //    }
 //
-//    @Override
-//    public Object getTotalCost() {
-//        List<Importer> importers = repository.findAll();
-//        return new HashMap<String, Object>() {{
-//            put("count_import", importers.size());
-//            put("total_cost", importers.stream().map(Importer::getTotalPrice).mapToLong(Long::longValue).sum());
-//        }};
-//    }
+    @Override
+    public Object getTotalCost() {
+        List<Importer> importers = repository.findAll();
+        return new HashMap<String, Object>() {{
+            put("count_import", importers.size());
+            put("total_cost", importers.stream().map(Importer::getTotalPrice).mapToLong(Long::longValue).sum());
+        }};
+    }
 }

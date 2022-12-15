@@ -8,12 +8,15 @@ import com.techshop.orderservice.entity.Order;
 import com.techshop.orderservice.servcie.OrderService;
 import com.techshop.shared.common.ResponseHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @CrossOrigin
@@ -98,23 +101,24 @@ public class OrderController {
             return ResponseHandler.getResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-//
-//    @GetMapping("/report")
-//    public Object orderReport(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
-//                              @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
-//                              @RequestParam String compression) {
-//        try {
-//            Map<LocalDate, List<GetOrderDto>> report = service.getOrderReport(start, end, compression)
-//                    .entrySet().stream().collect(
-//                            Collectors.toMap(Map.Entry::getKey,
-//                                    e-> e.getValue().stream().map(GetOrderDto::new)
-//                                            .collect(Collectors.toList())));
-//
-//            return ResponseHandler.getResponse(report, HttpStatus.OK);
-//        } catch (Exception e) {
-//            return ResponseHandler.getResponse(e, HttpStatus.BAD_REQUEST);
-//        }
-//    }
+
+    @GetMapping("/report")
+    public Object getOrderReport(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
+                                 @RequestParam String compression){
+        try{
+
+            Map<LocalDate, List<GetOrderDto>> report = service.getOrderReport(start, end, compression)
+                    .entrySet().stream().collect(
+                            Collectors.toMap(Map.Entry::getKey,
+                                    e -> e.getValue().stream().map(item -> converter.toGetOrderDto(item))
+                                            .collect(Collectors.toList())));
+            return ResponseHandler.getResponse(report, HttpStatus.OK);
+        } catch (Exception e){
+            return ResponseHandler.getResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
 
 
 
@@ -182,6 +186,23 @@ public class OrderController {
     public Object deleteOrder(@PathVariable(name = "order-id") Long orderId) {
         try {
             return ResponseHandler.getResponse(service.deleteOrder(orderId), HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseHandler.getResponse(e, HttpStatus.BAD_REQUEST);
+        }
+    }
+    @GetMapping("/revenue")
+    public Object getRevenue() {
+        try {
+            Object result = service.getRevenue();
+            return ResponseHandler.getResponse(result, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseHandler.getResponse(e, HttpStatus.BAD_REQUEST);
+        }
+    }
+    @GetMapping("/best-seller")
+    public Object bestSeller() {
+        try {
+            return ResponseHandler.getResponse(service.getBestSeller(), HttpStatus.OK);
         } catch (Exception e) {
             return ResponseHandler.getResponse(e, HttpStatus.BAD_REQUEST);
         }
