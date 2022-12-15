@@ -2,7 +2,9 @@ package com.techshop.userservice.controller;
 
 import com.techshop.userservice.common.ResponseHandler;
 import com.techshop.userservice.common.util.JwtUtil;
+import com.techshop.userservice.dto.BlockedUserDto;
 import com.techshop.userservice.dto.ChangePasswordDto;
+import com.techshop.userservice.dto.RegisterDto;
 import com.techshop.userservice.dto.UpdateUserDto;
 import com.techshop.userservice.entity.User;
 import com.techshop.userservice.services.UserServices;
@@ -27,6 +29,60 @@ public class UserController {
 
     public UserController(UserServices userServices) {
         this.userServices = userServices;
+    }
+
+    @GetMapping(path = "/users")
+    public Object getUsers(){
+        try{
+            return ResponseHandler.getResponse(userServices.getUsers(), HttpStatus.OK);
+        } catch (Exception e){
+            return ResponseHandler.getResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(path = "/customers")
+    public Object getCustomers(){
+        try{
+            return ResponseHandler.getResponse(userServices.getCustomers(), HttpStatus.OK);
+        } catch (Exception e){
+            return ResponseHandler.getResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(path = "/add-users")
+    public Object createUser(@Valid @RequestBody RegisterDto dto, BindingResult errors) {
+        try{
+            if(errors.hasErrors())
+                return ResponseHandler.getResponse(errors, HttpStatus.BAD_REQUEST);
+
+            User addedUser = userServices.createUser(dto);
+
+            return ResponseHandler.getResponse(addedUser, HttpStatus.CREATED);
+        } catch (Exception e){
+            return ResponseHandler.getResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(path = "/users/block-user")
+    public Object blockUser(@RequestBody BlockedUserDto dto) {
+        try{
+            userServices.changeStatus(dto);
+            return ResponseHandler.getResponse( HttpStatus.OK);
+        } catch (Exception e){
+            return ResponseHandler.getResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping(path= "/users/{username}")
+    public Object deleteUser(@PathVariable("username") String username) {
+        try{
+            userServices.deleteUserByUsername(username);
+
+            return ResponseHandler.getResponse( HttpStatus.OK);
+        } catch (Exception e){
+            return ResponseHandler.getResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     @GetMapping(path = "/profile/me")

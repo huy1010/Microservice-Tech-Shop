@@ -10,7 +10,7 @@ public class GetImporterDetailDto {
     private  Long variantId;
     private  Integer quantity;
     private  Long price;
-//
+    private Object variant;
     public GetImporterDetailDto(ImporterDetail importerDetail) {
         this.variantId = importerDetail.getId().getVariantId();
         this.quantity = importerDetail.getQuantity();

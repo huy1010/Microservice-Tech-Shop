@@ -47,6 +47,10 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "varchar(1) default 'Y'")
     private String activeFlag = "Y";
 
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.USER;
+
 //    @ManyToOne
 //    @JoinColumn(name = "role_id")
 //    private Role role;
