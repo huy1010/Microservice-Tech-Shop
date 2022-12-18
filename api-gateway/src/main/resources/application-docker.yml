@@ -1,0 +1,89 @@
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: '*'
+            allowedMethods: '*'
+            allowedHeaders: '*'
+      routes:
+        # Server Route
+        - id: server
+          uri: http://server:8761
+          predicates:
+            - Path=/eureka/web
+          filters:
+            - SetPath=/
+
+        # Server Static Resources Route
+        - id: server-static
+          uri: http://server:8761
+          predicates:
+            - Path=/eureka/**
+
+        # Product Service Route
+        - id: product-service
+          uri: lb://product-service
+          filters:
+            - MyFilterFactory
+          predicates:
+            - Path=/api/product-service/**
+
+        # User Service Route
+        - id: user-service
+          uri: lb://user-service
+          filters:
+            - MyFilterFactory
+          predicates:
+            - Path=/api/user-service/**
+
+        - id: import-service
+          uri: lb://import-service
+          predicates:
+            - Path=/api/import-service/**
+
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/order-service/**
+
+        - id: openapi
+          uri: http://localhost:8080
+          predicates:
+            - Path=/v3/api-docs/**
+          filters:
+            - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
+  zipkin:
+    base-url: http://zipkin:9411
+
+  sleuth:
+    sampler:
+      probability: 1.0
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: user-service
+        url: /v3/api-docs/api/user-service
+      - name: product-service
+        url: /v3/api-docs/api/product-service
+      - name: import-service
+        url: /v3/api-docs/api/import-service
+      - name: order-service
+        url: /v3/api-docs/api/order-service
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://server:8761/eureka
+
+logging:
+  level:
+    root: INFO
+
