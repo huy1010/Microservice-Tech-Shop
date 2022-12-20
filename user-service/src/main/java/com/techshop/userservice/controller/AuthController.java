@@ -5,6 +5,7 @@ import com.techshop.userservice.dto.ForgotPasswordDto;
 import com.techshop.userservice.dto.LoginDto;
 import com.techshop.userservice.dto.RegisterDto;
 import com.techshop.userservice.entity.PasswordResetToken;
+import com.techshop.userservice.entity.User;
 import com.techshop.userservice.services.SecurityUserService;
 import com.techshop.userservice.services.UserServices;
 import org.springframework.data.repository.query.Param;
