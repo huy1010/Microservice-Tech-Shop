@@ -1,16 +1,23 @@
 package com.techshop.userservice.services;
 
+import com.techshop.clients.mailservice.MailDetailRequest;
+import com.techshop.clients.mailservice.MailServiceClient;
 import com.techshop.userservice.common.util.JwtUtil;
 import com.techshop.userservice.dto.*;
 import com.techshop.userservice.entity.Role;
+import com.techshop.userservice.dto.ChangePasswordDto;
+import com.techshop.userservice.dto.UpdateUserDto;
+import com.techshop.userservice.entity.VerificationToken;
 import com.techshop.userservice.repository.UserRepository;
 import com.techshop.userservice.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 @Service
@@ -20,26 +27,44 @@ public class UserServicesImp implements UserServices {
     private PasswordEncoder encoder;
     @Autowired
     private JwtUtil jwtUtil;
+    private final  SecurityUserService securityUserService;
+    private final MailServiceClient mailServiceClient;
+
 
     @Autowired
-    public UserServicesImp(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServicesImp(UserRepository userRepository, PasswordEncoder passwordEncoder, SecurityUserService securityUserService, MailServiceClient mailServiceClient) {
         this.repository = userRepository;
         this.encoder = passwordEncoder;
+        this.securityUserService = securityUserService;
+        this.mailServiceClient = mailServiceClient;
     }
     @Override
     public boolean login(LoginDto user) {
         System.out.println(user.getUsername());
         User dbUser =  repository.getByUsername(user.getUsername());
-        if(dbUser != null) {
-            if(encoder.matches(user.getPassword(), dbUser.getPassword()) && Objects.equals(dbUser.getActiveFlag(), "Y"))
-                return true;
-        }
+        if(dbUser == null)
+            return false;
+
+        if(dbUser.getActiveFlag().equals("N"))
+            throw new IllegalStateException("Your account is not active");
+
+        if(dbUser.getActiveFlag().equals("B"))
+            throw new IllegalStateException("Your account has been blocked");
+
+        if(dbUser.getActiveFlag().equals("D"))
+            throw new IllegalStateException("Your account has been deleted");
+
+
+        if(encoder.matches(user.getPassword(), dbUser.getPassword()))
+            return true;
+
      return false;
     }
     @Override
     public User getUserByName(String username) {
      //   System.out.println(user.getUsername());
         return repository.getByUsername(username);
+
     }
 
     @Override
@@ -53,7 +78,23 @@ public class UserServicesImp implements UserServices {
         if(user.getFlag() != null)
             newUser.setActiveFlag("N");
 
-        return repository.save(newUser);
+        User addedUser = repository.save(newUser);
+        sendVerificationTokenMail(addedUser);
+
+        return addedUser;
+    }
+
+    private void sendVerificationTokenMail(User user){
+        VerificationToken token = securityUserService.createVerificationToken(user);
+        String mailContent =  String.format("Chào mừng đến với Gear Shop\n" +
+                "Nhấn vào đường link để xác thực tài khoản của bạn, link sẽ hết hạn sau 1 ngày: xac-thuc/xac-nhan-email?token=%s.",token.getToken());
+
+        MailDetailRequest mailDetail = new MailDetailRequest();
+        mailDetail.setRecipient(user.getEmail());
+        mailDetail.setSubject("Xác thực tài khoản gearshop");
+        mailDetail.setMsgBody(mailContent);
+
+        mailServiceClient.sendMail(mailDetail);
     }
 
     @Override
@@ -163,5 +204,17 @@ public class UserServicesImp implements UserServices {
             newUser.setActiveFlag("N");
 
         return repository.save(newUser);
+    }
+    
+    public void sendVerifyResetPassword(String email, String token) {
+        String text = String.format("Chào mừng đến với Gear Shop\n" +
+                "Nhấn vào đường link để đặt lại mật khẩu của bạn, link sẽ hết hạn sau 10 phút: xac-thuc/quen-mat-khau?token=%s.",token);
+
+        MailDetailRequest mailDetail = new MailDetailRequest();
+        mailDetail.setRecipient(email);
+        mailDetail.setSubject("Quên mật khẩu Gearshop");
+        mailDetail.setMsgBody(text);
+
+        mailServiceClient.sendMail(mailDetail);
     }
 }

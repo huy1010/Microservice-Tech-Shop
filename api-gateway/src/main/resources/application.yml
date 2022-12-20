@@ -12,6 +12,7 @@ spring:
             allowedOrigins: '*'
             allowedMethods: '*'
             allowedHeaders: '*'
+        add-to-simple-url-handler-mapping: true
       routes:
         # Server Route
         - id: server
@@ -53,6 +54,11 @@ spring:
           predicates:
             - Path=/api/order-service/**
 
+        - id: mail-service
+          uri: lb://mail-service
+          predicates:
+            - Path=/api/mail-service/**
+
         - id: openapi
           uri: http://localhost:8080
           predicates:
@@ -77,6 +83,8 @@ springdoc:
         url: /v3/api-docs/api/import-service
       - name: order-service
         url: /v3/api-docs/api/order-service
+      - name: mail-service
+        url: /v3/api-docs/api/mail-service
 
 eureka:
   client:

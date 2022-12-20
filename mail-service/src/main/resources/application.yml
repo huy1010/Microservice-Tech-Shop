@@ -1,0 +1,31 @@
+server:
+  port: 7777
+  servlet:
+    context-path: /api/mail-service
+
+eureka:
+  client:
+    service-url:
+      default-zone: http://localhost:8761/eureka
+
+spring:
+  application:
+    name: mail-service
+  zipkin:
+    base-url: http://localhost:9411
+  sleuth:
+    sampler:
+      probability: 1.0
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: amduongsux02@gmail.com
+    password: ktmuciqiphtvmyyo
+    from: no-reply@gearshop.com
+    debug: true
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true

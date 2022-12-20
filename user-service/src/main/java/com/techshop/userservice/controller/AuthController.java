@@ -1,20 +1,18 @@
 package com.techshop.userservice.controller;
 
 import com.techshop.userservice.common.ResponseHandler;
+import com.techshop.userservice.dto.ForgotPasswordDto;
 import com.techshop.userservice.dto.LoginDto;
 import com.techshop.userservice.dto.RegisterDto;
+import com.techshop.userservice.entity.PasswordResetToken;
 import com.techshop.userservice.entity.User;
+import com.techshop.userservice.services.SecurityUserService;
 import com.techshop.userservice.services.UserServices;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.data.repository.query.Param;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import com.techshop.userservice.common.util.JwtUtil;
 
 import javax.validation.Valid;
@@ -28,10 +26,13 @@ public class AuthController {
     private JwtUtil jwtUtil;
 
     private final UserServices userServices;
+    private final SecurityUserService securityUserService;
 
 
-    public AuthController(UserServices userService) {
+
+    public AuthController(UserServices userService, SecurityUserService securityUserService) {
         this.userServices = userService;
+        this.securityUserService = securityUserService;
     }
 
     @PostMapping("/login")
@@ -66,11 +67,42 @@ public class AuthController {
                 return ResponseHandler.getResponse(errors, HttpStatus.BAD_REQUEST);
 
             dto.setFlag("N");
-            User addedUser = userServices.register(dto);
-           // VerificationToken token =securityUserService.createVerificationToken(addedUser);
-           // mailService.sendVerifyMail(token.getUser().getEmail(), token.getToken());
+            userServices.register(dto);
 
             return ResponseHandler.getResponse(HttpStatus.CREATED);
+        } catch (Exception e){
+            return ResponseHandler.getResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/confirm-email")
+    public Object confirmEmail(@Param("token") String token) {
+        try{
+            securityUserService.verifyMailToken(token);
+            return ResponseHandler.getResponse(HttpStatus.OK);
+        } catch (Exception e){
+            return ResponseHandler.getResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(path= "/forgot-password")
+    public Object forgotPassword(@Param("email") String email) {
+        try{
+//
+//            String token = securityUserService.getForgotPasswordToken(email);
+            PasswordResetToken token =securityUserService.createPasswordResetToken(email);
+            userServices.sendVerifyResetPassword(token.getUser().getEmail(), token.getToken());
+            return ResponseHandler.getResponse(HttpStatus.OK);
+        } catch (Exception e){
+            return ResponseHandler.getResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(path = "/reset-password")
+    public Object confirmForgotPassword(@RequestBody ForgotPasswordDto dto) {
+        try{
+            securityUserService.verifyPasswordResetToken(dto);
+            return ResponseHandler.getResponse(HttpStatus.OK);
         } catch (Exception e){
             return ResponseHandler.getResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
