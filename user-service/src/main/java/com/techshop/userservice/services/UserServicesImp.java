@@ -1,16 +1,16 @@
 package com.techshop.userservice.services;
 
 import com.techshop.userservice.common.util.JwtUtil;
-import com.techshop.userservice.dto.ChangePasswordDto;
-import com.techshop.userservice.dto.UpdateUserDto;
+import com.techshop.userservice.dto.*;
+import com.techshop.userservice.entity.Role;
 import com.techshop.userservice.repository.UserRepository;
-import com.techshop.userservice.dto.LoginDto;
-import com.techshop.userservice.dto.RegisterDto;
 import com.techshop.userservice.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -27,15 +27,19 @@ public class UserServicesImp implements UserServices {
         this.encoder = passwordEncoder;
     }
     @Override
-    public String login(LoginDto user) {
-      //  String passEncode = encoder.encode(user.getPassword());
+    public boolean login(LoginDto user) {
         System.out.println(user.getUsername());
         User dbUser =  repository.getByUsername(user.getUsername());
         if(dbUser != null) {
-            if(encoder.matches(user.getPassword(), dbUser.getPassword()))
-            return jwtUtil.generateToken(dbUser.getUserId().toString());
+            if(encoder.matches(user.getPassword(), dbUser.getPassword()) && Objects.equals(dbUser.getActiveFlag(), "Y"))
+                return true;
         }
-     return "";
+     return false;
+    }
+    @Override
+    public User getUserByName(String username) {
+     //   System.out.println(user.getUsername());
+        return repository.getByUsername(username);
     }
 
     @Override
@@ -57,6 +61,7 @@ public class UserServicesImp implements UserServices {
         User user = repository.getByUserId(Long.parseLong(userId));
         return user;
     }
+
     public User getUserByUsername(String username) {
         Optional<User> user = repository.findByUsername(username);
         if(!user.isPresent())
@@ -98,11 +103,10 @@ public class UserServicesImp implements UserServices {
         userLogin.setPassword(dto.getOldPassword());
         userLogin.setUsername(username);
         try {
-          if(login(userLogin) != "") {
+          if(login(userLogin)) {
               User user = getUserByUsername(username);
               user.setPassword(encoder.encode((dto.getNewPassword())));
               repository.save(user);
-              return;
           } else {
               throw new IllegalArgumentException("Old password does not match");
           }
@@ -120,5 +124,44 @@ public class UserServicesImp implements UserServices {
     @Override
     public boolean isTakenUsername(String userName) {
         return repository.countByUsername(userName.toLowerCase()) >= 1;
+    }
+
+    @Override
+    public List<User> getUsers() {
+        return repository.findUsers();
+    }
+
+    @Override
+    public List<User> getCustomers() {
+        return repository.findCustomers();
+    }
+
+    @Override
+    public void deleteUserByUsername(String username) {
+        User userDeleted = getUserByUsername(username);
+        userDeleted.setActiveFlag("D");
+
+        repository.save(userDeleted);
+    }
+
+    @Override
+    public void changeStatus(BlockedUserDto dto) {
+        User user = getUserByUsername(dto.getUsername());
+        user.setActiveFlag(dto.getFlag());
+        repository.save(user);
+    }
+
+    @Override
+    public User createUser(RegisterDto user) {
+        User newUser = new User();
+
+        newUser.setUsername(user.getUsername());
+        newUser.setEmail(user.getEmail());
+        newUser.setPassword(encoder.encode(user.getPassword()));
+        newUser.setRole(Role.MANAGER);
+        if(user.getFlag() != null)
+            newUser.setActiveFlag("N");
+
+        return repository.save(newUser);
     }
 }

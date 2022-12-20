@@ -58,8 +58,8 @@ public class ProductServiceImpl implements ProductService{
         if(!product.isPresent() )
             throw new IllegalStateException("Product with productId " + id +" is not existed");
 
-        if(product.get().getActiveFlag().equals("D"))
-            throw new IllegalStateException("Product with productId " + id +" is deleted");
+//        if(product.get().getActiveFlag().equals("D"))
+//            throw new IllegalStateException("Product with productId " + id +" is deleted");
 
         return product.get();
     }

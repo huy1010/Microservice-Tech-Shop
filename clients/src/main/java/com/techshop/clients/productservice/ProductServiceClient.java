@@ -12,6 +12,9 @@ public interface ProductServiceClient {
     @GetMapping("api/brands")
     Object getBrands(@RequestParam("onlyActive") Boolean isActive );
 
+    @GetMapping("products/{product-id}")
+    Object getProductById(@PathVariable("product-id") Long productId);
+
     @GetMapping("variants/{variant-id}")
     Object getVariant(@PathVariable("variant-id") Long variantId);
 

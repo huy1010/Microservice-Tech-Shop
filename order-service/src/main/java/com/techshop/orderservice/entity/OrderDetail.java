@@ -29,4 +29,7 @@ public class OrderDetail {
 
     @Column(name = "unit_price")
     private Long unitPrice;
+
+    @Column(name = "product_id")
+    private Long productId;
 }

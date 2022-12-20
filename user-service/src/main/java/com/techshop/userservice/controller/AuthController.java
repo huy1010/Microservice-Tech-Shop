@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.techshop.userservice.common.util.JwtUtil;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 
 @CrossOrigin
 @RestController
@@ -38,9 +39,17 @@ public class AuthController {
         try {
             if (errors.hasErrors())
                 return ResponseHandler.getResponse(errors, HttpStatus.BAD_REQUEST);
-            String result = userServices.login(dto);
-            if (result != "") {
-                return ResponseHandler.getResponse(result, HttpStatus.OK);
+            boolean result = userServices.login(dto);
+            if (result) {
+                User dbUser = userServices.getUserByName(dto.getUsername());
+                String token = jwtUtil.generateToken(dbUser.getUserId().toString());
+
+                HashMap<String, Object> response = new HashMap<>();
+                response.put("accessToken", token);
+                response.put("role", dbUser.getRole());
+
+                return ResponseHandler.getResponse(response, HttpStatus.OK);
+
             } else {
                 return ResponseHandler.getResponse(errors, HttpStatus.UNAUTHORIZED);
             }
@@ -56,7 +65,6 @@ public class AuthController {
             if(errors.hasErrors())
                 return ResponseHandler.getResponse(errors, HttpStatus.BAD_REQUEST);
 
-            dto.setRoleId(null);
             dto.setFlag("N");
             User addedUser = userServices.register(dto);
            // VerificationToken token =securityUserService.createVerificationToken(addedUser);

@@ -100,6 +100,7 @@ public class OrderServiceImpl implements OrderService {
         Long variantPrice = getUnitPriceVariant(dto.getVariantId());
         orderDetail.setOrder(cart);
         orderDetail.getId().setVariantId(dto.getVariantId());
+        orderDetail.setProductId(dto.getProductId());
         orderDetail.setQuantity(dto.getQuantity());
         orderDetail.setUnitPrice(variantPrice);
 
@@ -263,34 +264,6 @@ public class OrderServiceImpl implements OrderService {
                         .with(AdjusterUtils.getAdjuster().get(compression))));
     }
 
-    @Override
-    public Object getBestSeller() {
-        List<OrderDetail> orderDetails = orderDetailRepository.findAll().stream().filter(o -> o.getOrder().getOrderStatus().equals(OrderStatus.COMPLETED)).collect(Collectors.toList());
-        List<Map<String, Object>> sold = new ArrayList<>();
-        LinkedHashMap<Long, Integer> sorted = new LinkedHashMap<>();
-
-     /*   Map<Long, Integer> calc = orderDetails.stream().collect(Collectors
-                .groupingBy(o -> o.getVariant().getProduct().getProductId(),
-                        Collectors.summingInt(OrderDetail::getQuantity)));
-
-        calc.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).forEachOrdered(x -> sorted.put(x.getKey(), x.getValue()));
-*/
-        int[] index = {0};
-        sorted.forEach((aLong, integer) -> {
-            int currentIndex = index[0];
-            if (currentIndex == 4)
-                return;
-            Map<String, Object> temp = new HashMap<>();
-/*
-            temp.put("product",converter.toProductWithVariant(productService.getProductById(aLong)));
-            temp.put("quantity_sold", integer);
-*/
-            sold.add(temp);
-            index[0]++;
-        });
-
-        return sold;
-    }
 
     @Override
     public Boolean deleteOrder(Long orderId) {
@@ -381,4 +354,34 @@ public class OrderServiceImpl implements OrderService {
             put("revenue", orders.stream().map(Order::getTotalPrice).mapToLong(Long::longValue).sum());
         }};
     }
+    @Override
+    public Object getBestSeller() {
+        List<OrderDetail> orderDetails = orderDetailRepository.findAll().stream().filter(o -> o.getOrder().getOrderStatus().equals(OrderStatus.COMPLETED)).collect(Collectors.toList());
+        List<Map<String, Object>> sold = new ArrayList<>();
+        LinkedHashMap<Long, Integer> sorted = new LinkedHashMap<>();
+
+       Map<Long, Integer> calc = orderDetails.stream().collect(Collectors
+                .groupingBy(OrderDetail::getProductId,
+                        Collectors.summingInt(OrderDetail::getQuantity)));
+
+        calc.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).forEachOrdered(x -> sorted.put(x.getKey(), x.getValue()));
+
+        int[] index = {0};
+        sorted.forEach((aLong, integer) -> {
+            int currentIndex = index[0];
+            if (currentIndex == 4)
+                return;
+            Map<String, Object> temp = new HashMap<>();
+            LinkedHashMap<String, Object> res = (LinkedHashMap<String, Object>) _productServiceClient.getProductById(aLong);
+            LinkedHashMap<String, Object> product = (LinkedHashMap<String, Object>) res.get("content");
+            temp.put("product",product);
+            temp.put("quantity_sold", integer);
+
+            sold.add(temp);
+            index[0]++;
+        });
+
+        return sold;
+    }
+
 }
