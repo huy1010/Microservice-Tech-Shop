@@ -1,8 +1,13 @@
 package com.techshop.orderservice.servcie;
 
+import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
+import com.stripe.model.checkout.Session;
+import com.stripe.param.checkout.SessionCreateParams;
 import com.techshop.clients.productservice.ProductServiceClient;
 import com.techshop.clients.productservice.UpdateVariantRequest;
 import com.techshop.orderservice.config.FeignClientInterceptor;
+import com.techshop.orderservice.dto.checkout.CheckoutItemDto;
 import com.techshop.orderservice.dto.order.CreateOrderDetailDto;
 import com.techshop.orderservice.dto.order.OrderInfo;
 import com.techshop.orderservice.dto.order.OrderWithNoneAccountDto;
@@ -12,6 +17,7 @@ import com.techshop.orderservice.repository.OrderDetailRepository;
 import com.techshop.orderservice.repository.OrderRepository;
 import com.techshop.shared.common.util.AdjusterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +28,15 @@ import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
+
+
+    @Value("${BASE_URL}")
+    private String baseURL;
+
+   // @Value("${STRIPE_SECRET_KEY}")
+    private String apiKey = "sk_test_51LxTbYE6RLTRdT5kJH8bn1lDtMlJlSocJ5KVnTm5cEZ5N4GIr9GLo4riUpYee6piw4g2m2z5VU1qwhnIqBImlLmi00FXFXaKos";
+
+
     private OrderRepository repository;
     private OrderDetailRepository orderDetailRepository;
     private VoucherService voucherService;
@@ -186,7 +201,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order checkout() throws Exception {
+    public Order checkout(boolean isPaid) throws Exception {
         Order cart = getYourCart();
 
         if (cart.getVoucher() != null) {
@@ -225,7 +240,9 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
-
+        if(isPaid) {
+            cart.setPaymentStatus(PaymentStatus.PAID);
+        }
         cart.setOrderStatus(OrderStatus.PENDING);
         cart.setCreatedAt(LocalDateTime.now());
 
@@ -382,6 +399,59 @@ public class OrderServiceImpl implements OrderService {
         });
 
         return sold;
+    }
+    @Override
+    public String createSession(List<CheckoutItemDto> checkoutItemDtoList) throws StripeException {
+
+        // sucess and failure urls
+
+        String successURL = baseURL + "payment/success";
+
+        String failureURL = baseURL + "payment/failure";
+
+        Stripe.apiKey = apiKey;
+
+        List<SessionCreateParams.LineItem> sessionItemList = new ArrayList<>();
+
+
+        for (CheckoutItemDto checkoutItemDto: checkoutItemDtoList) {
+            sessionItemList.add(createSessionLineItem(checkoutItemDto));
+        }
+
+        SessionCreateParams.Builder params = SessionCreateParams.builder()
+                .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
+                .setMode(SessionCreateParams.Mode.PAYMENT)
+                .setCancelUrl(failureURL)
+                .addAllLineItem(sessionItemList)
+                .setSuccessUrl(successURL);
+
+        if(!Objects.equals(checkoutItemDtoList.get(0).getVoucherId(), null))
+        params.addDiscount(
+                SessionCreateParams.Discount.builder()
+                        .setCoupon(checkoutItemDtoList.get(0).getVoucherId())
+                        .build()
+        );
+        return Session.create(params.build()).getId();
+    }
+
+    private SessionCreateParams.LineItem createSessionLineItem(CheckoutItemDto checkoutItemDto) {
+
+        return SessionCreateParams.LineItem.builder()
+                .setPriceData(createPriceData(checkoutItemDto))
+                .setQuantity(Long.parseLong(String.valueOf(checkoutItemDto.getQuantity())))
+                .build();
+
+    }
+
+    private SessionCreateParams.LineItem.PriceData createPriceData(CheckoutItemDto checkoutItemDto) {
+        return SessionCreateParams.LineItem.PriceData.builder()
+                .setCurrency("vnd")
+                .setUnitAmount((long)(checkoutItemDto.getPrice()))
+                .setProductData(
+                        SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                .setName(checkoutItemDto.getProductName())
+                                .build()
+                ).build();
     }
 
 }
