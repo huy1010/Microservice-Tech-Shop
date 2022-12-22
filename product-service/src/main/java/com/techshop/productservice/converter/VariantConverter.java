@@ -20,7 +20,7 @@ public class VariantConverter {
 
     public VariantWithAttributesDto toVariantWithAttributes(Variant variant) {
         VariantWithAttributesDto result = new VariantWithAttributesDto();
-
+        result.setProductId(variant.getProduct().getProductId());
         result.setVariantId(variant.getVariantId());
         result.setSku(variant.getSku());
         result.setVariantName(variant.getVariantName());

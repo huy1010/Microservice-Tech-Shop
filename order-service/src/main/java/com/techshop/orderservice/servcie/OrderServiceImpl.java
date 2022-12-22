@@ -115,9 +115,13 @@ public class OrderServiceImpl implements OrderService {
         Long variantPrice = getUnitPriceVariant(dto.getVariantId());
         orderDetail.setOrder(cart);
         orderDetail.getId().setVariantId(dto.getVariantId());
-        orderDetail.setProductId(dto.getProductId());
         orderDetail.setQuantity(dto.getQuantity());
         orderDetail.setUnitPrice(variantPrice);
+
+        LinkedHashMap<String, Object> res = (LinkedHashMap<String, Object>) _productServiceClient.getVariant(dto.getVariantId());
+        LinkedHashMap<String, Object> variant = (LinkedHashMap<String, Object>) res.get("content");
+        orderDetail.setProductId(Long.parseLong(variant.get("productId").toString()));
+
 
         cart.getOrderDetails().add(orderDetail);
 
