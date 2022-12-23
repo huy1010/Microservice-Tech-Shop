@@ -29,6 +29,7 @@ public class JwtUtil {
 
     public String generateToken(String userId) {
         Claims claims = Jwts.claims().setId(userId);
+
         long nowMillis = System.currentTimeMillis();
         long expMillis = nowMillis + tokenValidity;
         Date exp = new Date(expMillis);
