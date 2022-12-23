@@ -9,6 +9,7 @@ import java.util.List;
 public class VariantWithAttributesDto {
 
     private Long variantId;
+    private Long productId;
     private String sku;
     private String variantName;
     private String variantDesc;

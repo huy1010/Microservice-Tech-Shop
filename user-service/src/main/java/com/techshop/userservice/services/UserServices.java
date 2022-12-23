@@ -32,4 +32,5 @@ public interface UserServices {
 
     User createUser(RegisterDto dto);
 
+    void sendVerifyResetPassword(String email, String token);
 }

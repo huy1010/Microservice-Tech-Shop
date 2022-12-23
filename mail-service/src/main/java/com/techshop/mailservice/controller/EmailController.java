@@ -17,8 +17,7 @@ public class EmailController {
     }
 
     @PostMapping("/send-mail")
-    public String
-    sendMail(@RequestBody EmailDetails details) {
+    public String sendMail(@RequestBody EmailDetails details) {
         String status = _emailService.sendSimpleMail(details);
         return status;
     }
@@ -26,6 +25,12 @@ public class EmailController {
     @PostMapping("/send-mail-with-attachment")
     public String sendMailWithAttachment(@RequestBody EmailDetails details) {
         String status = _emailService.sendMailWithAttachment(details);
+        return status;
+    }
+
+    @PostMapping("/send-html-mail")
+    public String sendHtmlMail(@RequestBody EmailDetails details) {
+        String status = _emailService.sendHtmlMail(details);
         return status;
     }
 }

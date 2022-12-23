@@ -31,3 +31,7 @@ spring:
   sleuth:
     sampler:
       probability: 1.0
+
+STRIPE_SECRET_KEY: sk_test_51LxTbYE6RLTRdT5kJH8bn1lDtMlJlSocJ5KVnTm5cEZ5N4GIr9GLo4riUpYee6piw4g2m2z5VU1qwhnIqBImlLmi00FXFXaKos
+
+BASE_URL: http://localhost:3001/

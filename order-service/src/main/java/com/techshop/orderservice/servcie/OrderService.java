@@ -1,5 +1,8 @@
 package com.techshop.orderservice.servcie;
 
+import com.stripe.exception.StripeException;
+import com.stripe.model.checkout.Session;
+import com.techshop.orderservice.dto.checkout.CheckoutItemDto;
 import com.techshop.orderservice.dto.order.CreateOrderDetailDto;
 import com.techshop.orderservice.dto.order.OrderInfo;
 import com.techshop.orderservice.dto.order.OrderWithNoneAccountDto;
@@ -27,7 +30,7 @@ public interface OrderService {
 
     Order getYourCart();
 
-    Order checkout() throws Exception;
+    Order checkout(boolean isPaid) throws Exception;
 
     Order changeOrderStatus(UpdateOrderDto dto);
 
@@ -42,4 +45,7 @@ public interface OrderService {
     Order checkoutWithNoneAccount(OrderWithNoneAccountDto dto) throws Exception;
 
     Object getRevenue();
+
+    String createSession(List<CheckoutItemDto> checkoutItemDtoList) throws StripeException;
+
 }

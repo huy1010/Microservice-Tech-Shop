@@ -27,7 +27,7 @@ public class OrderConverter {
         result.setOrderStatus(order.getOrderStatus());
         result.setPaymentStatus(order.getPaymentStatus());
         //result.setUsername(order.getUser().getUsername());
-        result.setUsername("Hard code");
+        result.setUsername(order.getRecipientName());
         result.setVoucher(
                 order.getVoucher() == null
                         ? null

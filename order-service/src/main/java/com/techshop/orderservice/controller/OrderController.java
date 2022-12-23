@@ -1,8 +1,10 @@
 package com.techshop.orderservice.controller;
 
 
-
+import com.stripe.model.checkout.Session;
 import com.techshop.orderservice.converter.OrderConverter;
+import com.techshop.orderservice.dto.checkout.CheckoutItemDto;
+import com.techshop.orderservice.dto.checkout.StripeResponse;
 import com.techshop.orderservice.dto.order.*;
 import com.techshop.orderservice.entity.Order;
 import com.techshop.orderservice.servcie.OrderService;
@@ -73,9 +75,9 @@ public class OrderController {
     }
 
     @GetMapping("/user/checkout")
-    public Object checkOutOrder() {
+    public Object checkOutOrder(@RequestParam boolean isPaid) {
         try {
-            return ResponseHandler.getResponse(  converter.toGetOrderDto(service.checkout()), HttpStatus.OK);
+            return ResponseHandler.getResponse(  converter.toGetOrderDto(service.checkout(isPaid)), HttpStatus.OK);
         } catch (Exception e) {
             return ResponseHandler.getResponse(e, HttpStatus.BAD_REQUEST);
         }
@@ -206,5 +208,16 @@ public class OrderController {
         } catch (Exception e) {
             return ResponseHandler.getResponse(e, HttpStatus.BAD_REQUEST);
         }
+    }
+    @PostMapping("/create-checkout-session")
+    public Object checkoutList(@RequestBody List<CheckoutItemDto> checkoutItemDtoList) {
+        try {
+            String sessionId = service.createSession(checkoutItemDtoList);
+            StripeResponse stripeResponse = new StripeResponse(sessionId);
+            return ResponseHandler.getResponse(stripeResponse, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseHandler.getResponse(e, HttpStatus.BAD_REQUEST);
+        }
+
     }
 }
