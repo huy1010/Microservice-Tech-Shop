@@ -12,6 +12,7 @@ import java.io.File;
 
 @Service
 public class MailServiceImpl implements MailService {
+    private static final String CONTENT_TYPE_TEXT_HTML = "text/html;charset=\"utf-8\"";
     private JavaMailSender _javaMailSender;
 
     @Value("${spring.mail.from}")
@@ -32,7 +33,8 @@ public class MailServiceImpl implements MailService {
             mimeMessageHelper = new MimeMessageHelper(mimeMessage);
             mimeMessageHelper.setFrom(new InternetAddress("no-reply@gearshop.com", sender));
             mimeMessageHelper.setTo(details.getRecipient());
-            mimeMessageHelper.setText(details.getMsgBody());
+//            mimeMessageHelper.setText(details.getMsgBody());
+            mimeMessage.setContent(details.getMsgBody(), CONTENT_TYPE_TEXT_HTML);
             mimeMessageHelper.setSubject(details.getSubject());
 
             // Sending the mail
@@ -71,6 +73,22 @@ public class MailServiceImpl implements MailService {
 
     @Override
     public String sendHtmlMail(EmailDetails details) {
-        return null;
+        try {
+            // Creating a simple mail message
+            MimeMessage mimeMessage = _javaMailSender.createMimeMessage();
+            MimeMessageHelper mimeMessageHelper;
+
+            mimeMessageHelper = new MimeMessageHelper(mimeMessage);
+            mimeMessageHelper.setFrom(new InternetAddress("no-reply@gearshop.com", sender));
+            mimeMessageHelper.setTo(details.getRecipient());
+            mimeMessageHelper.setSubject(details.getSubject());
+            mimeMessage.setContent(details.getMsgBody(), CONTENT_TYPE_TEXT_HTML);
+
+            // Sending the mail
+            _javaMailSender.send(mimeMessage);
+            return "Mail Sent Successfully...";
+        } catch (Exception e) {
+            return "Error while Sending Mail";
+        }
     }
 }
