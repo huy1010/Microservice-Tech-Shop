@@ -11,6 +11,7 @@ import com.techshop.userservice.entity.VerificationToken;
 import com.techshop.userservice.repository.UserRepository;
 import com.techshop.userservice.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,9 @@ import java.util.Optional;
 
 @Service
 public class UserServicesImp implements UserServices {
+
+    @Value("${client.base-url}")
+    private String CLIENT_DOMAIN;
 
     private UserRepository repository;
     private PasswordEncoder encoder;
@@ -87,7 +91,7 @@ public class UserServicesImp implements UserServices {
     private void sendVerificationTokenMail(User user){
         VerificationToken token = securityUserService.createVerificationToken(user);
         String mailContent =  String.format("Chào mừng đến với Gear Shop\n" +
-                "Nhấn vào đường link để xác thực tài khoản của bạn, link sẽ hết hạn sau 1 ngày: xac-thuc/xac-nhan-email?token=%s.",token.getToken());
+                "Nhấn vào đường link để xác thực tài khoản của bạn, link sẽ hết hạn sau 1 ngày: %s/xac-thuc/xac-nhan-email?token=%s.",CLIENT_DOMAIN, token.getToken());
 
         MailDetailRequest mailDetail = new MailDetailRequest();
         mailDetail.setRecipient(user.getEmail());
@@ -208,7 +212,7 @@ public class UserServicesImp implements UserServices {
     
     public void sendVerifyResetPassword(String email, String token) {
         String text = String.format("Chào mừng đến với Gear Shop\n" +
-                "Nhấn vào đường link để đặt lại mật khẩu của bạn, link sẽ hết hạn sau 10 phút: xac-thuc/quen-mat-khau?token=%s.",token);
+                "Nhấn vào đường link để đặt lại mật khẩu của bạn, link sẽ hết hạn sau 10 phút: %s/xac-thuc/quen-mat-khau?token=%s.",CLIENT_DOMAIN,token);
 
         MailDetailRequest mailDetail = new MailDetailRequest();
         mailDetail.setRecipient(email);
