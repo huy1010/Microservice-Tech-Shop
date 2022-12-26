@@ -12,6 +12,13 @@ import com.techshop.orderservice.dto.order.CreateOrderDetailDto;
 import com.techshop.orderservice.dto.order.OrderInfo;
 import com.techshop.orderservice.dto.order.OrderWithNoneAccountDto;
 import com.techshop.orderservice.dto.order.UpdateOrderDto;
+import com.techshop.clients.mailservice.MailDetailRequest;
+import com.techshop.clients.mailservice.MailServiceClient;
+import com.techshop.clients.productservice.ProductServiceClient;
+import com.techshop.clients.productservice.UpdateVariantRequest;
+import com.techshop.orderservice.config.FeignClientInterceptor;
+import com.techshop.orderservice.converter.OrderConverter;
+import com.techshop.orderservice.dto.order.*;
 import com.techshop.orderservice.entity.*;
 import com.techshop.orderservice.repository.OrderDetailRepository;
 import com.techshop.orderservice.repository.OrderRepository;
@@ -20,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.annotation.Lazy;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -42,16 +50,26 @@ public class OrderServiceImpl implements OrderService {
     private VoucherService voucherService;
     private final ProductServiceClient _productServiceClient;
 
+    private final ThymeleafService _thymeleafService;
+    private final MailServiceClient _mailServiceClient;
+    private final OrderConverter _converter;
+
 
     @Autowired
     public OrderServiceImpl(OrderRepository repository,
                             OrderDetailRepository orderDetailRepository,
                             VoucherService voucherService,
-                            ProductServiceClient productServiceClient) {
+                            ProductServiceClient productServiceClient,
+                            ThymeleafService thymeleafService, ThymeleafService thymeleafService1,
+                            MailServiceClient mailServiceClient,
+                            @Lazy OrderConverter converter) {
         this.repository = repository;
         this.orderDetailRepository = orderDetailRepository;
         this.voucherService = voucherService;
         _productServiceClient = productServiceClient;
+        _thymeleafService = thymeleafService1;
+        _mailServiceClient = mailServiceClient;
+        _converter = converter;
     }
 
     public Long getUnitPriceVariant(Long variantId) {
@@ -250,7 +268,27 @@ public class OrderServiceImpl implements OrderService {
         cart.setOrderStatus(OrderStatus.PENDING);
         cart.setCreatedAt(LocalDateTime.now());
 
-        return repository.save(cart);
+
+        Order newOrder = repository.save(cart);
+
+        sendOrderMail(newOrder);
+
+        return newOrder;
+    }
+
+    private void sendOrderMail(Order order){
+        GetOrderDto orderDto =  _converter.toGetOrderDto(order);
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("order", orderDto);
+
+        String htmlBody = _thymeleafService.getContent("order", variables);
+        MailDetailRequest mailDetailRequest = new MailDetailRequest();
+        mailDetailRequest.setRecipient(order.getEmail());
+        mailDetailRequest.setSubject("Gearshop - Thông tin đơn hàng #" + order.getOrderId() );
+        mailDetailRequest.setMsgBody(htmlBody);
+
+        _mailServiceClient.sendMail(mailDetailRequest);
     }
 
     @Override
@@ -273,8 +311,9 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderStatus(dto.getOrderStatus());
         order.setPaymentStatus(dto.getPaymentStatus());
 
+        Order newOrder = repository.save(order);
 
-        return repository.save(order);
+        return newOrder;
     }
 
     @Override
@@ -305,6 +344,7 @@ public class OrderServiceImpl implements OrderService {
         order.setDeliveryAddress(orderInfo.getDeliveryAddress());
         order.setRecipientName(orderInfo.getRecipientName());
         order.setPhoneNumber(orderInfo.getPhoneNumber());
+        order.setEmail(orderInfo.getEmail());
 
         repository.save(order);
     }
@@ -318,6 +358,7 @@ public class OrderServiceImpl implements OrderService {
         order.setRecipientName(dto.getRecipientName());
         order.setPaymentStatus(PaymentStatus.UNPAID);
         order.setOrderStatus(OrderStatus.PENDING);
+        order.setEmail(dto.getEmail());
 
         Set<OrderDetail> orderDetail = new HashSet<>();
         dto.getOrderDetail().forEach(item -> {
@@ -364,7 +405,11 @@ public class OrderServiceImpl implements OrderService {
 
 
 
-        return repository.save(order);
+        Order newOrder = repository.save(order);
+
+        sendOrderMail(newOrder);
+
+        return newOrder;
     }
 
     @Override

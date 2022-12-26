@@ -9,4 +9,6 @@ public class OrderInfo {
     private String deliveryAddress;
     private String phoneNumber;
     private String recipientName;
+    private String email;
+
 }

@@ -11,5 +11,6 @@ public class OrderWithNoneAccountDto {
     private String deliveryAddress;
     private String phoneNumber;
     private String recipientName;
+    private String email;
     private List<CreateOrderDetailDto> orderDetail;
 }

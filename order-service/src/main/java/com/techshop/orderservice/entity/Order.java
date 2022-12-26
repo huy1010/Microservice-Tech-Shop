@@ -47,6 +47,7 @@ public class Order  extends BaseEntity {
     private String phoneNumber;
     private String recipientName;
     private String deliveryAddress;
+    private String email;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private Set<OrderDetail> orderDetails = new HashSet<>();
