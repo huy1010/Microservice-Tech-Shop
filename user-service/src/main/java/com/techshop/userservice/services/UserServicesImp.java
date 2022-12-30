@@ -64,7 +64,6 @@ public class UserServicesImp implements UserServices {
     public User getUserByName(String username) {
      //   System.out.println(user.getUsername());
         return repository.getByUsername(username);
-
     }
 
     @Override

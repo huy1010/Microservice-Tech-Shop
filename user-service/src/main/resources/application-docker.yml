@@ -1,0 +1,36 @@
+server:
+  port: 8083
+  servlet:
+    context-path: /api/user-service
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://server:8761/eureka
+
+spring:
+  application:
+    name: user-service
+  datasource:
+    url: jdbc:postgresql://postgres:5432/techshop_user_service
+    username: postgres
+    password: 1111
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  zipkin:
+    base-url: http://zipkin:9411
+  sleuth:
+    sampler:
+      probability: 1.0
+jwt:
+  secret: thisismysecretbuiminhhuy2001
+  token:
+    validity: 600000000

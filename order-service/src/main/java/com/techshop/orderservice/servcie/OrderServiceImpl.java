@@ -115,6 +115,7 @@ public class OrderServiceImpl implements OrderService {
         Long variantPrice = getUnitPriceVariant(dto.getVariantId());
         orderDetail.setOrder(cart);
         orderDetail.getId().setVariantId(dto.getVariantId());
+        orderDetail.setProductId(dto.getProductId());
         orderDetail.setQuantity(dto.getQuantity());
         orderDetail.setUnitPrice(variantPrice);
 
