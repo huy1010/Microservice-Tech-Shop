@@ -34,3 +34,6 @@ jwt:
   secret: thisismysecretbuiminhhuy2001
   token:
     validity: 600000000
+
+client:
+  base-url: http://localhost:3001
